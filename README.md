@@ -40,7 +40,7 @@ Modern ve kullanıcı dostu bir kitap satış platformu. ASP.NET Core MVC kullan
 
 1. **Repository'yi klonlayın:**
    ```bash
-   git clone https://github.com/kullaniciadi/KitapSatisSitesi.git
+   git clone https://github.com/isilcelik2003/KitapSatisSitesi.git
    cd KitapSatisSitesi
    ```
 
@@ -170,9 +170,9 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 
 ## 📞 İletişim
 
-- **Proje Sahibi**: [Adınız]
-- **Email**: [email@example.com]
-- **GitHub**: [github.com/kullaniciadi]
+- **Proje Sahibi**: İsil Çelik
+- **Email**: isilcelik2003@gmail.com
+- **GitHub**: [github.com/isilcelik2003]
 
 ## 🙏 Teşekkürler
 
@@ -183,4 +183,4 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 
 ---
 
-⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın! 
+⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
