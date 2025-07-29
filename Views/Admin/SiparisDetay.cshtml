@@ -1,0 +1,223 @@
+@model KitapSatisSitesi.Models.Siparis
+
+@{
+    ViewData["Title"] = "Sipariş Detayı";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-shopping-cart me-2"></i>Sipariş Detayı #@Model.SiparisID
+                        </h4>
+                        <a href="@Url.Action("SiparisListesi")" class="btn btn-light">
+                            <i class="fas fa-arrow-left me-2"></i>Geri Dön
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Sipariş Bilgileri -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>Sipariş Bilgileri
+                            </h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Sipariş ID:</strong></td>
+                                    <td>#@Model.SiparisID</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sipariş Tarihi:</strong></td>
+                                    <td>@Model.SiparisTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Durum:</strong></td>
+                                    <td>
+                                        @{
+                                            var durumClass = Model.Durum switch
+                                            {
+                                                "Beklemede" => "badge bg-warning",
+                                                "Hazırlanıyor" => "badge bg-info",
+                                                "Kargoda" => "badge bg-primary",
+                                                "Teslim Edildi" => "badge bg-success",
+                                                "İptal Edildi" => "badge bg-danger",
+                                                _ => "badge bg-secondary"
+                                            };
+                                        }
+                                        <span class="@durumClass">@Model.Durum</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Toplam Tutar:</strong></td>
+                                    <td><strong class="text-success">₺@Model.ToplamTutar.ToString("N2")</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-user me-2"></i>Müşteri Bilgileri
+                            </h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Müşteri:</strong></td>
+                                    <td>@Model.Kullanici.Ad @Model.Kullanici.Soyad</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>E-posta:</strong></td>
+                                    <td>@Model.Kullanici.Email</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Telefon:</strong></td>
+                                    <td>@Model.Kullanici.Telefon</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sipariş Ürünleri -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-box me-2"></i>Sipariş Ürünleri
+                            </h5>
+                            <div class="row">
+                                @if (Model.SiparisDetaylar.Any())
+                                {
+                                    @foreach (var detay in Model.SiparisDetaylar)
+                                    {
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="row g-0">
+                                                    <div class="col-md-4">
+                                                        <img src="@(string.IsNullOrEmpty(detay.Kitap.ResimUrl) ? "https://via.placeholder.com/150x200/6c757d/ffffff?text=Kitap" : 
+                                                                (detay.Kitap.ResimUrl.StartsWith("http://") || detay.Kitap.ResimUrl.StartsWith("https://") ? detay.Kitap.ResimUrl : (detay.Kitap.ResimUrl.StartsWith("/") ? detay.Kitap.ResimUrl : "/" + detay.Kitap.ResimUrl)))" 
+                                                             class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="@detay.Kitap.Ad">
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <div class="card-body">
+                                                            <h6 class="card-title">@detay.Kitap.Ad</h6>
+                                                            <p class="card-text text-muted">@detay.Kitap.Yazar.TamAd</p>
+                                                            <p class="card-text">
+                                                                <span class="badge bg-secondary">@detay.Kitap.Kategori.Ad</span>
+                                                            </p>
+                                                            <p class="card-text">
+                                                                <strong class="text-primary">₺@detay.BirimFiyat.ToString("F2")</strong> x @detay.Adet adet
+                                                            </p>
+                                                            <p class="card-text">
+                                                                <strong class="text-success">Toplam: ₺@detay.ToplamFiyat.ToString("F2")</strong>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else if (Model.Kitap != null)
+                                {
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100">
+                                            <div class="row g-0">
+                                                <div class="col-md-4">
+                                                    <img src="@(string.IsNullOrEmpty(Model.Kitap.ResimUrl) ? "https://via.placeholder.com/150x200/6c757d/ffffff?text=Kitap" : 
+                                                            (Model.Kitap.ResimUrl.StartsWith("http://") || Model.Kitap.ResimUrl.StartsWith("https://") ? Model.Kitap.ResimUrl : (Model.Kitap.ResimUrl.StartsWith("/") ? Model.Kitap.ResimUrl : "/" + Model.Kitap.ResimUrl)))" 
+                                                         class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="@Model.Kitap.Ad">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <h6 class="card-title">@Model.Kitap.Ad</h6>
+                                                        <p class="card-text text-muted">@Model.Kitap.Yazar.TamAd</p>
+                                                        <p class="card-text">
+                                                            <span class="badge bg-secondary">@Model.Kitap.Kategori.Ad</span>
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <strong class="text-primary">₺@Model.ToplamTutar.ToString("F2")</strong> x 1 adet
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <strong class="text-success">Toplam: ₺@Model.ToplamTutar.ToString("F2")</strong>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-12">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Bu sipariş için ürün bilgisi bulunamadı.
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Durum Güncelleme -->
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-edit me-2"></i>Durum Güncelle
+                            </h5>
+                            <form asp-action="SiparisDurumuGuncelle" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@Model.SiparisID" />
+                                <select name="yeniDurum" class="form-select d-inline-block w-auto me-2">
+                                    @if (Model.Durum == "Beklemede")
+                                    {
+                                        <option value="Beklemede" selected>Beklemede</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Beklemede">Beklemede</option>
+                                    }
+                                    @if (Model.Durum == "Hazırlanıyor")
+                                    {
+                                        <option value="Hazırlanıyor" selected>Hazırlanıyor</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Hazırlanıyor">Hazırlanıyor</option>
+                                    }
+                                    @if (Model.Durum == "Kargoda")
+                                    {
+                                        <option value="Kargoda" selected>Kargoda</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Kargoda">Kargoda</option>
+                                    }
+                                    @if (Model.Durum == "Teslim Edildi")
+                                    {
+                                        <option value="Teslim Edildi" selected>Teslim Edildi</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="Teslim Edildi">Teslim Edildi</option>
+                                    }
+                                    @if (Model.Durum == "İptal Edildi")
+                                    {
+                                        <option value="İptal Edildi" selected>İptal Edildi</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="İptal Edildi">İptal Edildi</option>
+                                    }
+                                </select>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Durumu Güncelle
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

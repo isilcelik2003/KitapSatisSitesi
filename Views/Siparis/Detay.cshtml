@@ -1,0 +1,189 @@
+@model KitapSatisSitesi.Models.Siparis
+@{
+    ViewData["Title"] = "Sipariş Detayı";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Ana Sayfa</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Siparis")">Siparişlerim</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Sipariş #@Model.SiparisID</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-receipt me-2"></i>Sipariş Detayı #@Model.SiparisID
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="mb-3">Sipariş Bilgileri</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong>Sipariş Tarihi:</strong><br>
+                                    <span class="text-muted">@Model.SiparisTarihi.ToString("dd.MM.yyyy HH:mm")</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Durum:</strong><br>
+                                    <span class="badge bg-@(Model.Durum == "Beklemede" ? "warning" : Model.Durum == "Tamamlandı" ? "success" : "info")">
+                                        @Model.Durum
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong>Toplam Tutar:</strong><br>
+                                    <span class="text-primary h5">₺@Model.ToplamTutar.ToString("F2")</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Sipariş ID:</strong><br>
+                                    <span class="text-muted">#@Model.SiparisID</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="mb-3">Sipariş Özeti</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">Ürün Sayısı</h6>
+                                    <p class="card-text">
+                                        <span class="badge bg-primary fs-5">@Model.SiparisDetaylar.Count()</span>
+                                    </p>
+                                    <p class="card-text">
+                                        <small class="text-muted">Toplam ürün adedi</small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sipariş Detayları -->
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="mb-3">Alınan Kitaplar</h5>
+                            <div class="row">
+                                @if (Model.SiparisDetaylar.Any())
+                                {
+                                    @foreach (var detay in Model.SiparisDetaylar)
+                                    {
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="row g-0">
+                                                    <div class="col-md-4">
+                                                        <img src="@(string.IsNullOrEmpty(detay.Kitap.ResimUrl) ? "https://via.placeholder.com/150x200/6c757d/ffffff?text=Kitap" : 
+                                                                (detay.Kitap.ResimUrl.StartsWith("http://") || detay.Kitap.ResimUrl.StartsWith("https://") ? detay.Kitap.ResimUrl : (detay.Kitap.ResimUrl.StartsWith("/") ? detay.Kitap.ResimUrl : "/" + detay.Kitap.ResimUrl)))" 
+                                                             class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="@detay.Kitap.Ad">
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <div class="card-body">
+                                                            <h6 class="card-title">@detay.Kitap.Ad</h6>
+                                                            <p class="card-text text-muted">@detay.Kitap.Yazar.TamAd</p>
+                                                            <p class="card-text">
+                                                                <span class="badge bg-secondary">@detay.Kitap.Kategori.Ad</span>
+                                                            </p>
+                                                            <p class="card-text">
+                                                                <strong class="text-primary">₺@detay.BirimFiyat.ToString("F2")</strong> x @detay.Adet adet
+                                                            </p>
+                                                            <p class="card-text">
+                                                                <strong class="text-success">Toplam: ₺@detay.ToplamFiyat.ToString("F2")</strong>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else if (Model.Kitap != null)
+                                {
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100">
+                                            <div class="row g-0">
+                                                <div class="col-md-4">
+                                                    <img src="@(string.IsNullOrEmpty(Model.Kitap.ResimUrl) ? "https://via.placeholder.com/150x200/6c757d/ffffff?text=Kitap" : 
+                                                            (Model.Kitap.ResimUrl.StartsWith("http://") || Model.Kitap.ResimUrl.StartsWith("https://") ? Model.Kitap.ResimUrl : (Model.Kitap.ResimUrl.StartsWith("/") ? Model.Kitap.ResimUrl : "/" + Model.Kitap.ResimUrl)))" 
+                                                         class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="@Model.Kitap.Ad">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <h6 class="card-title">@Model.Kitap.Ad</h6>
+                                                        <p class="card-text text-muted">@Model.Kitap.Yazar.TamAd</p>
+                                                        <p class="card-text">
+                                                            <span class="badge bg-secondary">@Model.Kitap.Kategori.Ad</span>
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <strong class="text-primary">₺@Model.ToplamTutar.ToString("F2")</strong> x 1 adet
+                                                        </p>
+                                                        <p class="card-text">
+                                                            <strong class="text-success">Toplam: ₺@Model.ToplamTutar.ToString("F2")</strong>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-12">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            Bu sipariş için ürün bilgisi bulunamadı.
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    @if (Model.Kullanici != null)
+                    {
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">Teslimat Bilgileri</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Ad Soyad:</strong><br>
+                                        <span class="text-muted">@Model.Kullanici.Ad @Model.Kullanici.Soyad</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>E-posta:</strong><br>
+                                        <span class="text-muted">@Model.Kullanici.Email</span>
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(Model.Kullanici.Telefon))
+                                {
+                                    <div class="row mt-2">
+                                        <div class="col-md-6">
+                                            <strong>Telefon:</strong><br>
+                                            <span class="text-muted">@Model.Kullanici.Telefon</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <a href="@Url.Action("Index", "Siparis")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Siparişlerime Dön
+                        </a>
+                        <a href="@Url.Action("Index", "Kitap")" class="btn btn-outline-primary">
+                            <i class="fas fa-book me-2"></i>Kitap Listesi
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

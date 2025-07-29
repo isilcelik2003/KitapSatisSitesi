@@ -1,0 +1,202 @@
+@{
+    ViewData["Title"] = "Sepetim";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">
+                <i class="fas fa-shopping-cart me-2"></i>Sepetim
+            </h1>
+
+            <div id="sepetIcerik">
+                <!-- Sepet içeriği JavaScript ile yüklenecek -->
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Yükleniyor...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    sepetiYukle();
+});
+
+function sepetiYukle() {
+    const sepet = JSON.parse(localStorage.getItem('sepet') || '[]');
+    const sepetIcerik = document.getElementById('sepetIcerik');
+    
+    if (sepet.length === 0) {
+        sepetIcerik.innerHTML = `
+            <div class="alert alert-info text-center">
+                <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                <h4>Sepetiniz Boş</h4>
+                <p>Sepetinizde henüz ürün bulunmuyor.</p>
+                <a href="@Url.Action("Index", "Kitap")" class="btn btn-primary">
+                    <i class="fas fa-book me-2"></i>Alışverişe Başla
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    let toplamTutar = 0;
+    let html = `
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-shopping-cart me-2"></i>Sepet İçeriği
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Fiyat</th>
+                                <th>Adet</th>
+                                <th>Toplam</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+    `;
+
+    sepet.forEach(item => {
+        const toplam = item.adet * (item.fiyat || 0);
+        toplamTutar += toplam;
+        
+        html += `
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <img src="${item.resimUrl || 'https://via.placeholder.com/50x70/6c757d/ffffff?text=Kitap'}" 
+                             alt="${item.kitapAdi}" class="me-3" style="width: 50px; height: 70px; object-fit: cover;">
+                        <div>
+                            <h6 class="mb-0">${item.kitapAdi}</h6>
+                            <small class="text-muted">${item.yazarAdi || 'Bilinmeyen Yazar'}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>₺${(item.fiyat || 0).toFixed(2)}</td>
+                <td>
+                    <div class="input-group" style="width: 120px;">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="adetGuncelle(${item.kitapId}, ${item.adet - 1})">-</button>
+                        <input type="number" class="form-control form-control-sm text-center" value="${item.adet}" 
+                               onchange="adetGuncelle(${item.kitapId}, this.value)" min="1">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="adetGuncelle(${item.kitapId}, ${item.adet + 1})">+</button>
+                    </div>
+                </td>
+                <td><strong>₺${toplam.toFixed(2)}</strong></td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="sepettenCikar(${item.kitapId})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <a href="@Url.Action("Index", "Kitap")" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Alışverişe Devam Et
+                        </a>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title">Toplam</h5>
+                                <h3 class="text-primary">₺${toplamTutar.toFixed(2)}</h3>
+                                <button class="btn btn-success btn-lg" onclick="siparisVer()">
+                                    <i class="fas fa-credit-card me-2"></i>Sipariş Ver
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    sepetIcerik.innerHTML = html;
+}
+
+function adetGuncelle(kitapId, yeniAdet) {
+    let sepet = JSON.parse(localStorage.getItem('sepet') || '[]');
+    const urun = sepet.find(item => item.kitapId === kitapId);
+    
+    if (urun) {
+        if (yeniAdet <= 0) {
+            sepet = sepet.filter(item => item.kitapId !== kitapId);
+        } else {
+            urun.adet = parseInt(yeniAdet);
+        }
+        
+        localStorage.setItem('sepet', JSON.stringify(sepet));
+        sepetiYukle();
+        updateSepetSayisi();
+    }
+}
+
+function sepettenCikar(kitapId) {
+    let sepet = JSON.parse(localStorage.getItem('sepet') || '[]');
+    sepet = sepet.filter(item => item.kitapId !== kitapId);
+    localStorage.setItem('sepet', JSON.stringify(sepet));
+    sepetiYukle();
+    updateSepetSayisi();
+}
+
+function siparisVer() {
+    if (confirm('Siparişinizi onaylıyor musunuz?')) {
+        const sepet = JSON.parse(localStorage.getItem('sepet') || '[]');
+        
+        if (sepet.length === 0) {
+            alert('Sepetiniz boş!');
+            return;
+        }
+        
+        // Sepet verilerini SepetItem formatına dönüştür
+        const sepetItems = sepet.map(item => ({
+            kitapId: item.kitapId,
+            kitapAdi: item.kitapAdi,
+            yazarAdi: item.yazarAdi,
+            fiyat: item.fiyat,
+            adet: item.adet,
+            resimUrl: item.resimUrl
+        }));
+        
+        fetch('@Url.Action("SiparisVer", "Siparis")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(sepetItems)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                localStorage.removeItem('sepet');
+                updateSepetSayisi();
+                window.location.href = '@Url.Action("Index", "Siparis")';
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('Sipariş verilirken hata oluştu!');
+        });
+    }
+}
+</script> 

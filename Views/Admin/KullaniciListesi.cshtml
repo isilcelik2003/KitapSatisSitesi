@@ -1,0 +1,122 @@
+@model IEnumerable<KitapSatisSitesi.Models.Kullanici>
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-users me-2"></i>Kullanıcı Yönetimi
+                </h2>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Admin Paneli
+                </a>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-user-friends me-2"></i>Toplam @Model.Count() Kullanıcı
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Henüz kullanıcı bulunmuyor</h5>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="kullaniciTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Ad Soyad</th>
+                                        <th>Email</th>
+                                        <th>Telefon</th>
+                                        <th>Kayıt Tarihi</th>
+                                        <th>Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var kullanici in Model)
+                                    {
+                                        <tr>
+                                            <td>@kullanici.KullaniciID</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                                         style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                    <div>
+                                                        <a href="@Url.Action("KullaniciDetay", new { id = kullanici.KullaniciID })" 
+                                                           class="text-decoration-none fw-bold text-primary">
+                                                            <strong>@kullanici.Ad @kullanici.Soyad</strong>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <a href="mailto:@kullanici.Email" class="text-decoration-none">
+                                                    <i class="fas fa-envelope me-1"></i>@kullanici.Email
+                                                </a>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(kullanici.Telefon))
+                                                {
+                                                    <a href="tel:@kullanici.Telefon" class="text-decoration-none">
+                                                        <i class="fas fa-phone me-1"></i>@kullanici.Telefon
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Belirtilmemiş</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">Kayıt tarihi bilgisi yok</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">Aktif</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// DataTable özelliği ekle
+$(document).ready(function() {
+    $('#kullaniciTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
+        },
+        "pageLength": 25,
+        "order": [[0, "asc"]]
+    });
+});
+</script>
+
+<style>
+.table th {
+    background-color: #4e73df !important;
+    color: white !important;
+    border-color: #4e73df !important;
+}
+.rounded-circle {
+    border-radius: 50% !important;
+}
+</style> 

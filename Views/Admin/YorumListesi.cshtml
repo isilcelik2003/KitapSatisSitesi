@@ -1,0 +1,194 @@
+@model IEnumerable<KitapSatisSitesi.Models.Yorum>
+@{
+    ViewData["Title"] = "Yorum Yönetimi";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-comments me-2"></i>Yorum Yönetimi
+                </h2>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Admin Paneli
+                </a>
+            </div>
+
+            @if (TempData["Mesaj"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["Mesaj"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Hata"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Hata"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-comment-dots me-2"></i>Toplam @Model.Count() Yorum
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Henüz yorum bulunmuyor</h5>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="yorumTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Kitap</th>
+                                        <th>Kullanıcı</th>
+                                        <th>Yorum</th>
+                                        <th>Puan</th>
+                                        <th>Tarih</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var yorum in Model)
+                                    {
+                                        <tr>
+                                            <td>@yorum.YorumID</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @if (!string.IsNullOrEmpty(yorum.Kitap?.ResimUrl))
+                                                    {
+                                                        <img src="@yorum.Kitap.ResimUrl" alt="@yorum.Kitap.Ad" 
+                                                             class="img-thumbnail me-2" style="width: 40px; height: 50px; object-fit: cover;">
+                                                    }
+                                                    <div>
+                                                        <strong>@yorum.Kitap?.Ad</strong><br>
+                                                        <small class="text-muted">@yorum.Kitap?.Yazar?.TamAd</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong>@yorum.Kullanici?.Ad @yorum.Kullanici?.Soyad</strong><br>
+                                                    <small class="text-muted">@yorum.Kullanici?.Email</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-truncate" style="max-width: 300px;" title="@yorum.Metin">
+                                                    @yorum.Metin
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        if (i <= yorum.Puan)
+                                                        {
+                                                            <i class="fas fa-star text-warning"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="far fa-star text-muted"></i>
+                                                        }
+                                                    }
+                                                    <span class="ms-2 badge bg-primary">@yorum.Puan/5</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small>@yorum.Tarih.ToString("dd.MM.yyyy HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-danger" 
+                                                        title="Sil"
+                                                        onclick="yorumSil(@yorum.YorumID, '@yorum.Kitap?.Ad', '@yorum.Kullanici?.Ad')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="silModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>Yorum Silme Onayı
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong id="silinecekYorumBilgisi"></strong> yorumunu silmek istediğinizden emin misiniz?</p>
+                <p class="text-danger"><small>Bu işlem geri alınamaz!</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>İptal
+                </button>
+                <form id="silForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Sil
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function yorumSil(yorumId, kitapAdi, kullaniciAdi) {
+    document.getElementById('silinecekYorumBilgisi').textContent = kitapAdi + ' kitabına ait ' + kullaniciAdi + ' kullanıcısının';
+    document.getElementById('silForm').action = '@Url.Action("YorumSil")/' + yorumId;
+    
+    var modal = new bootstrap.Modal(document.getElementById('silModal'));
+    modal.show();
+}
+
+// DataTable özelliği ekle
+$(document).ready(function() {
+    $('#yorumTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
+        },
+        "pageLength": 25,
+        "order": [[5, "desc"]]
+    });
+});
+</script>
+
+<style>
+.table th {
+    background-color: #4e73df !important;
+    color: white !important;
+    border-color: #4e73df !important;
+}
+.img-thumbnail {
+    border: 1px solid #dee2e6;
+}
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style> 

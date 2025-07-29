@@ -1,0 +1,75 @@
+@model KitapSatisSitesi.Models.Kullanici
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Kayıt Ol
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Hata != null)
+                    {
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>@ViewBag.Hata
+                        </div>
+                    }
+
+                    <form asp-action="Register" method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Ad" class="form-label">Ad</label>
+                                <input asp-for="Ad" class="form-control" required>
+                                <span asp-validation-for="Ad" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Soyad" class="form-label">Soyad</label>
+                                <input asp-for="Soyad" class="form-control" required>
+                                <span asp-validation-for="Soyad" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">E-posta</label>
+                            <input asp-for="Email" type="email" class="form-control" required>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Parola" class="form-label">Parola</label>
+                            <input asp-for="Parola" type="password" class="form-control" required>
+                            <span asp-validation-for="Parola" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Telefon" class="form-label">Telefon</label>
+                            <input asp-for="Telefon" class="form-control" placeholder="0555 123 45 67" required>
+                            <span asp-validation-for="Telefon" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Kayıt Ol
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr>
+                    <div class="text-center">
+                        <p class="mb-0">
+                            Zaten hesabınız var mı? 
+                            <a href="@Url.Action("Login")" class="text-decoration-none">
+                                <i class="fas fa-sign-in-alt me-1"></i>Giriş Yap
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

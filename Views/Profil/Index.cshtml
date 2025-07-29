@@ -1,0 +1,70 @@
+@model KitapSatisSitesi.Models.Kullanici
+@{
+    ViewData["Title"] = "Profilim";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Profil Bilgilerim
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Mesaj"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle me-2"></i>@TempData["Mesaj"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Guncelle" method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Ad" class="form-label">Ad</label>
+                                <input asp-for="Ad" class="form-control" required>
+                                <span asp-validation-for="Ad" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Soyad" class="form-label">Soyad</label>
+                                <input asp-for="Soyad" class="form-control" required>
+                                <span asp-validation-for="Soyad" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" type="email" required>
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Telefon" class="form-label">Telefon</label>
+                                <input asp-for="Telefon" class="form-control" placeholder="0555 123 45 67">
+                                <span asp-validation-for="Telefon" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Parola" class="form-label">Yeni Parola (Değiştirmek istemiyorsanız boş bırakın)</label>
+                            <input asp-for="Parola" class="form-control" type="password" placeholder="Yeni parola">
+                            <span asp-validation-for="Parola" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Geri Dön
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Profili Güncelle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

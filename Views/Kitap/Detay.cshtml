@@ -1,0 +1,231 @@
+@model KitapSatisSitesi.Models.Kitap
+@{
+    ViewData["Title"] = Model.Ad;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4" data-kitap-id="@Model.KitapID" data-fiyat="@Model.Fiyat" data-yazar-adi="@Model.Yazar.TamAd" data-resim-url="@Model.ResimUrl">
+            <img src="@(string.IsNullOrEmpty(Model.ResimUrl) ? "https://via.placeholder.com/400x600/6c757d/ffffff?text=Kitap" : 
+                (Model.ResimUrl.StartsWith("http://") || Model.ResimUrl.StartsWith("https://") ? Model.ResimUrl : (Model.ResimUrl.StartsWith("/") ? Model.ResimUrl : "/" + Model.ResimUrl)))" 
+                class="img-fluid rounded shadow" alt="@Model.Ad">
+        </div>
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Ana Sayfa</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")">Kitaplar</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Ad</li>
+                </ol>
+            </nav>
+
+            <h1 class="mb-3">@Model.Ad</h1>
+            <p class="text-muted h5 mb-3">@Model.Yazar.TamAd</p>
+            
+            <div class="mb-3">
+                <span class="badge bg-secondary me-2">@Model.Kategori.Ad</span>
+                @if (Model.StoktaMi)
+                {
+                    <span class="badge bg-success">Stokta (@Model.StokAdedi adet)</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Stokta Yok</span>
+                }
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-primary">₺@Model.Fiyat.ToString("F2")</h3>
+            </div>
+
+            <div class="mb-4">
+                <h5>Kitap Bilgileri</h5>
+                <ul class="list-unstyled">
+                    <li><strong>Yazar:</strong> @Model.Yazar.TamAd</li>
+                    <li><strong>Kategori:</strong> @Model.Kategori.Ad</li>
+                    <li><strong>Yayın Yılı:</strong> @Model.YayinYili</li>
+                    <li><strong>Stok Adedi:</strong> @Model.StokAdedi</li>
+                </ul>
+            </div>
+
+            <div class="d-grid gap-2 d-md-block">
+                @if (Model.StoktaMi)
+                {
+                    <button class="btn btn-primary btn-lg me-md-2" onclick="sepeteEkle(@Model.KitapID, '@Model.Ad')">
+                        <i class="fas fa-shopping-cart me-2"></i>Sepete Ekle
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-secondary btn-lg me-md-2" disabled>
+                        <i class="fas fa-times me-2"></i>Stokta Yok
+                    </button>
+                }
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yorumlar Bölümü -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Yorumlar (@Model.YorumSayisi)
+                        @if (Model.OrtalamaPuan > 0)
+                        {
+                            <span class="badge bg-warning ms-2">
+                                <i class="fas fa-star me-1"></i>@Model.OrtalamaPuan.ToString("F1")
+                            </span>
+                        }
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Context.Session.GetString("KullaniciID") != null)
+                    {
+                                                       <!-- Yorum Ekleme Formu -->
+                               <div class="mb-4">
+                                   <h6>Yorum Yap</h6>
+                                   <form id="yorumForm">
+                                       @Html.AntiForgeryToken()
+                                       <div class="row">
+                                           <div class="col-md-8">
+                                               <textarea id="yorumMetin" class="form-control" rows="3" placeholder="Kitap hakkında düşüncelerinizi paylaşın..." maxlength="500"></textarea>
+                                           </div>
+                                           <div class="col-md-4">
+                                               <div class="mb-3">
+                                                   <label class="form-label">Puan</label>
+                                                   <select id="yorumPuan" class="form-select">
+                                                       <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                                                       <option value="4">⭐⭐⭐⭐ (4)</option>
+                                                       <option value="3">⭐⭐⭐ (3)</option>
+                                                       <option value="2">⭐⭐ (2)</option>
+                                                       <option value="1">⭐ (1)</option>
+                                                   </select>
+                                               </div>
+                                               <button type="submit" class="btn btn-primary w-100">
+                                                   <i class="fas fa-paper-plane me-2"></i>Yorum Gönder
+                                               </button>
+                                           </div>
+                                       </div>
+                                   </form>
+                               </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Yorum yapmak için <a href="@Url.Action("Login", "Auth")">giriş yapın</a>.
+                        </div>
+                    }
+
+                    <!-- Mevcut Yorumlar -->
+                    <div id="yorumlarListesi">
+                        @if (Model.Yorumlar.Any())
+                        {
+                            @foreach (var yorum in Model.Yorumlar.OrderByDescending(y => y.Tarih))
+                            {
+                                <div class="border-bottom pb-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">@yorum.Kullanici.TamAd</h6>
+                                            <div class="mb-2">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    if (i <= yorum.Puan)
+                                                    {
+                                                        <i class="fas fa-star text-warning"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="far fa-star text-muted"></i>
+                                                    }
+                                                }
+                                                <span class="ms-2 text-muted">@yorum.Tarih.ToString("dd.MM.yyyy HH:mm")</span>
+                                            </div>
+                                            <p class="mb-0">@yorum.Metin</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-comment-slash fa-3x mb-3"></i>
+                                <p>Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#yorumForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        var metin = $('#yorumMetin').val().trim();
+        var puan = $('#yorumPuan').val();
+        
+        if (!metin) {
+            alert('Lütfen yorum metni girin!');
+            return;
+        }
+        
+        $.ajax({
+            url: '@Url.Action("YorumEkle", "Kitap")',
+            type: 'POST',
+            data: {
+                kitapId: @Model.KitapID,
+                metin: metin,
+                puan: puan,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Yorumu listeye ekle
+                    var yorumHtml = `
+                        <div class="border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">${response.yorum.kullaniciAdi}</h6>
+                                    <div class="mb-2">
+                                        ${'⭐'.repeat(response.yorum.puan)}${'☆'.repeat(5-response.yorum.puan)}
+                                        <span class="ms-2 text-muted">${response.yorum.tarih}</span>
+                                    </div>
+                                    <p class="mb-0">${response.yorum.metin}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    $('#yorumlarListesi').prepend(yorumHtml);
+                    $('#yorumMetin').val('');
+                    
+                    // Yorum sayısını güncelle
+                    var yorumSayisi = $('#yorumlarListesi .border-bottom').length;
+                    $('.card-header h5').html(`<i class="fas fa-comments me-2"></i>Yorumlar (${yorumSayisi})`);
+                    
+                    alert('Yorum başarıyla eklendi!');
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function() {
+                alert('Yorum eklenirken hata oluştu!');
+            }
+        });
+    });
+});
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

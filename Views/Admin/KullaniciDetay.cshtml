@@ -1,0 +1,322 @@
+@model KitapSatisSitesi.Models.Kullanici
+
+@{
+    ViewData["Title"] = "Kullanıcı Detayı";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fas fa-user me-2"></i>Kullanıcı Detayı
+                </h2>
+                <a href="@Url.Action("KullaniciListesi")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Geri Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Kullanıcı Bilgileri -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-circle me-2"></i>Kullanıcı Bilgileri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-user-circle fa-4x text-primary"></i>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Ad:</strong>
+                        </div>
+                        <div class="col-6">
+                            @Model.Ad
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Soyad:</strong>
+                        </div>
+                        <div class="col-6">
+                            @Model.Soyad
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Email:</strong>
+                        </div>
+                        <div class="col-6">
+                            @Model.Email
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Telefon:</strong>
+                        </div>
+                        <div class="col-6">
+                            @Model.Telefon
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- İstatistikler -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>İstatistikler
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h3 class="text-primary">@(Model.Siparisler?.Count() ?? 0)</h3>
+                            <p class="text-muted">Toplam Sipariş</p>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-success">@(Model.Yorumlar?.Count() ?? 0)</h3>
+                            <p class="text-muted">Toplam Yorum</p>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-warning">₺@(Model.Siparisler != null && Model.Siparisler.Any() ? Model.Siparisler.Where(s => s.Durum != "İptal Edildi").Sum(s => s.ToplamTutar).ToString("N2") : "0.00")</h3>
+                            <p class="text-muted">Toplam Harcama</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Siparişler -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-bag me-2"></i>Siparişler (@Model.Siparisler?.Count() ?? 0)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Siparisler?.Any() == true)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="siparisTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Sipariş ID</th>
+                                        <th>Kitap</th>
+                                        <th>Tutar</th>
+                                        <th>Durum</th>
+                                        <th>Tarih</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var siparis in Model.Siparisler.OrderByDescending(s => s.SiparisTarihi))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Action("SiparisDetay", new { id = siparis.SiparisID })" class="text-decoration-none">
+                                                    <strong class="text-primary">#@siparis.SiparisID</strong>
+                                                    <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 0.8em;"></i>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        @if (siparis.SiparisDetaylar.Any())
+                                                        {
+                                                            <strong>@siparis.SiparisDetaylar.Count() ürün</strong>
+                                                            <br>
+                                                            <small class="text-muted">
+                                                                @foreach (var detay in siparis.SiparisDetaylar.Take(2))
+                                                                {
+                                                                    <span class="badge bg-light text-dark me-1">@detay.Kitap.Ad (@detay.Adet)</span>
+                                                                }
+                                                                @if (siparis.SiparisDetaylar.Count() > 2)
+                                                                {
+                                                                    <span class="badge bg-secondary">+@(siparis.SiparisDetaylar.Count() - 2) daha</span>
+                                                                }
+                                                            </small>
+                                                        }
+                                                        else if (siparis.Kitap != null)
+                                                        {
+                                                            <strong>1 ürün</strong>
+                                                            <br>
+                                                            <small class="text-muted">
+                                                                <span class="badge bg-light text-dark">@siparis.Kitap.Ad</span>
+                                                            </small>
+                                                        }
+                                                        else
+                                                        {
+                                                            <strong class="text-muted">Ürün bilgisi yok</strong>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success fs-6">₺@siparis.ToplamTutar.ToString("N2")</span>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var durumClass = siparis.Durum switch
+                                                    {
+                                                        "Beklemede" => "bg-warning",
+                                                        "Onaylandı" => "bg-info",
+                                                        "Hazırlanıyor" => "bg-primary",
+                                                        "Kargoda" => "bg-warning",
+                                                        "Teslim Edildi" => "bg-success",
+                                                        "İptal Edildi" => "bg-danger",
+                                                        _ => "bg-secondary"
+                                                    };
+                                                }
+                                                <span class="badge @durumClass">@siparis.Durum</span>
+                                            </td>
+                                            <td>@siparis.SiparisTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Henüz sipariş bulunmuyor</h5>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yorumlar -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comment-dots me-2"></i>Yorumlar (@Model.Yorumlar?.Count() ?? 0)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Yorumlar?.Any() == true)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="yorumTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Yorum ID</th>
+                                        <th>Kitap</th>
+                                        <th>Yorum</th>
+                                        <th>Puan</th>
+                                        <th>Tarih</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var yorum in Model.Yorumlar.OrderByDescending(y => y.Tarih))
+                                    {
+                                        <tr>
+                                            <td>@yorum.YorumID</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @if (!string.IsNullOrEmpty(yorum.Kitap?.ResimUrl))
+                                                    {
+                                                        <img src="@yorum.Kitap.ResimUrl" alt="@yorum.Kitap.Ad" 
+                                                             class="img-thumbnail me-2" style="width: 40px; height: 50px; object-fit: cover;">
+                                                    }
+                                                    <div>
+                                                        <strong>@yorum.Kitap?.Ad</strong>
+                                                        <br>
+                                                        <small class="text-muted">@yorum.Kitap?.Yazar?.TamAd</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-truncate" style="max-width: 300px;" title="@yorum.Metin">
+                                                    @yorum.Metin
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        if (i <= yorum.Puan)
+                                                        {
+                                                            <i class="fas fa-star text-warning me-1"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="far fa-star text-warning me-1"></i>
+                                                        }
+                                                    }
+                                                    <span class="ms-2">(@yorum.Puan/5)</span>
+                                                </div>
+                                            </td>
+                                            <td>@yorum.Tarih.ToString("dd.MM.yyyy HH:mm")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-comment-dots fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Henüz yorum bulunmuyor</h5>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // DataTables initialization
+            $('#siparisTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/tr.json'
+                },
+                order: [[4, 'desc']]
+            });
+
+            $('#yorumTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/tr.json'
+                },
+                order: [[4, 'desc']]
+            });
+        });
+    </script>
+}
+
+<style>
+.table th {
+    background-color: #4e73df !important;
+    color: white !important;
+    border-color: #4e73df !important;
+}
+.img-thumbnail {
+    border: 1px solid #dee2e6;
+}
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style> 

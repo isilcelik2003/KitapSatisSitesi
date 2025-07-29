@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4><i class="fas fa-sign-in-alt me-2"></i>Giriş Yap</h4>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Hata != null)
+                    {
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>@ViewBag.Hata
+                        </div>
+                    }
+
+                    <form asp-action="Login" method="post">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Adresi</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="parola" class="form-label">Parola</label>
+                            <input type="password" class="form-control" id="parola" name="parola" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr>
+                    <div class="text-center">
+                        <p>Hesabınız yok mu? <a href="@Url.Action("Register")" class="text-decoration-none">Kayıt Ol</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

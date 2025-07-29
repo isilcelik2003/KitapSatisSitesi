@@ -1,0 +1,237 @@
+@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+            </h2>
+        </div>
+    </div>
+
+    <!-- İstatistik Kartları -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Toplam Kitap</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.ToplamKitap</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Toplam Sipariş</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.ToplamSiparis</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Toplam Kullanıcı</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.ToplamKullanici</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Toplam Yorum</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.ToplamYorum</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hızlı İşlemler -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-bolt me-2"></i>Hızlı İşlemler
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="@Url.Action("KitapListesi")" class="btn btn-info btn-block">
+                                <i class="fas fa-list me-2"></i>Kitap Listesi
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="@Url.Action("SiparisListesi")" class="btn btn-success btn-block">
+                                <i class="fas fa-shopping-bag me-2"></i>Siparişleri Görüntüle
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="@Url.Action("YorumListesi")" class="btn btn-warning btn-block">
+                                <i class="fas fa-comment-dots me-2"></i>Yorumları Yönet
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yönetim Menüsü -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-cogs me-2"></i>Yönetim Paneli
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-book me-2"></i>Kitap Yönetimi
+                            </h5>
+                            <ul class="list-group list-group-flush">
+
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("KitapListesi")" class="text-decoration-none">
+                                        <i class="fas fa-list me-2"></i>Tüm Kitapları Görüntüle
+                                    </a>
+                                    <span class="badge bg-info rounded-pill">@ViewBag.ToplamKitap</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("StokDuzenle", new { id = 1 })" class="text-decoration-none">
+                                        <i class="fas fa-boxes me-2"></i>Stok Yönetimi
+                                    </a>
+                                    <span class="badge bg-warning rounded-pill">Stok</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("KategoriListesi")" class="text-decoration-none">
+                                        <i class="fas fa-tags me-2"></i>Kategori Yönetimi
+                                    </a>
+                                    <span class="badge bg-info rounded-pill">@ViewBag.ToplamKitap</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("TopluFiyatGuncelle")" class="text-decoration-none">
+                                        <i class="fas fa-dollar-sign me-2"></i>Toplu Fiyat Güncelleme
+                                    </a>
+                                    <span class="badge bg-success rounded-pill">Fiyat</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-success mb-3">
+                                <i class="fas fa-shopping-cart me-2"></i>Sipariş & Kullanıcı Yönetimi
+                            </h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("SiparisListesi")" class="text-decoration-none">
+                                        <i class="fas fa-shopping-bag me-2"></i>Siparişleri Görüntüle
+                                    </a>
+                                    <span class="badge bg-success rounded-pill">@ViewBag.ToplamSiparis</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("KullaniciListesi")" class="text-decoration-none">
+                                        <i class="fas fa-users me-2"></i>Kullanıcıları Görüntüle
+                                    </a>
+                                    <span class="badge bg-info rounded-pill">@ViewBag.ToplamKullanici</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@Url.Action("YorumListesi")" class="text-decoration-none">
+                                        <i class="fas fa-comment-dots me-2"></i>Yorumları Yönet
+                                    </a>
+                                    <span class="badge bg-warning rounded-pill">@ViewBag.ToplamYorum</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Son Aktiviteler -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-clock me-2"></i>Son Aktiviteler
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Hoş geldiniz! Admin panelinizde kitap ekleme, düzenleme, stok yönetimi, sipariş takibi ve yorum yönetimi işlemlerini gerçekleştirebilirsiniz.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+.font-weight-bold {
+    font-weight: 700 !important;
+}
+.text-xs {
+    font-size: 0.7rem;
+}
+</style> 

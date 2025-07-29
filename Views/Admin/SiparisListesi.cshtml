@@ -1,0 +1,224 @@
+@model IEnumerable<KitapSatisSitesi.Models.Siparis>
+@{
+    ViewData["Title"] = "Sipariş Yönetimi";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-shopping-bag me-2"></i>Sipariş Yönetimi
+                </h2>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Admin Paneli
+                </a>
+            </div>
+
+            @if (TempData["Mesaj"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["Mesaj"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-shopping-cart me-2"></i>Toplam @Model.Count() Sipariş
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Henüz sipariş bulunmuyor</h5>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="siparisTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Sipariş ID</th>
+                                        <th>Kitap</th>
+                                        <th>Müşteri</th>
+                                        <th>Tutar</th>
+                                        <th>Durum</th>
+                                        <th>Tarih</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var siparis in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Action("SiparisDetay", new { id = siparis.SiparisID })" class="text-decoration-none">
+                                                    <strong class="text-primary">#@siparis.SiparisID</strong>
+                                                    <i class="fas fa-external-link-alt ms-1 text-muted" style="font-size: 0.8em;"></i>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        @if (siparis.SiparisDetaylar.Any())
+                                                        {
+                                                            <strong>@siparis.SiparisDetaylar.Count() ürün</strong><br>
+                                                            <small class="text-muted">
+                                                                @foreach (var detay in siparis.SiparisDetaylar.Take(2))
+                                                                {
+                                                                    <span class="badge bg-light text-dark me-1">@detay.Kitap.Ad (@detay.Adet)</span>
+                                                                }
+                                                                @if (siparis.SiparisDetaylar.Count() > 2)
+                                                                {
+                                                                    <span class="badge bg-secondary">+@(siparis.SiparisDetaylar.Count() - 2) daha</span>
+                                                                }
+                                                            </small>
+                                                        }
+                                                        else if (siparis.Kitap != null)
+                                                        {
+                                                            <strong>1 ürün</strong><br>
+                                                            <small class="text-muted">
+                                                                <span class="badge bg-light text-dark">@siparis.Kitap.Ad</span>
+                                                            </small>
+                                                        }
+                                                        else
+                                                        {
+                                                            <strong class="text-muted">Ürün bilgisi yok</strong>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong>@siparis.Kullanici?.Ad @siparis.Kullanici?.Soyad</strong><br>
+                                                    <small class="text-muted">@siparis.Kullanici?.Email</small><br>
+                                                    <small class="text-muted">@siparis.Kullanici?.Telefon</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success fs-6">₺@siparis.ToplamTutar.ToString("N2")</span>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var durumClass = siparis.Durum switch
+                                                    {
+                                                        "Beklemede" => "bg-warning",
+                                                        "Onaylandı" => "bg-info",
+                                                        "Hazırlanıyor" => "bg-primary",
+                                                        "Kargoda" => "bg-info",
+                                                        "Teslim Edildi" => "bg-success",
+                                                        "İptal Edildi" => "bg-danger",
+                                                        _ => "bg-secondary"
+                                                    };
+                                                }
+                                                <span class="badge @durumClass">@siparis.Durum</span>
+                                            </td>
+                                            <td>
+                                                <small>@siparis.SiparisTarihi.ToString("dd.MM.yyyy HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-cog"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="durumGuncelle(@siparis.SiparisID, 'Beklemede')">
+                                                                <i class="fas fa-clock me-2"></i>Beklemede
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="durumGuncelle(@siparis.SiparisID, 'Onaylandı')">
+                                                                <i class="fas fa-check me-2"></i>Onaylandı
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="durumGuncelle(@siparis.SiparisID, 'Hazırlanıyor')">
+                                                                <i class="fas fa-box me-2"></i>Hazırlanıyor
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="durumGuncelle(@siparis.SiparisID, 'Kargoda')">
+                                                                <i class="fas fa-truck me-2"></i>Kargoda
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="durumGuncelle(@siparis.SiparisID, 'Teslim Edildi')">
+                                                                <i class="fas fa-check-double me-2"></i>Teslim Edildi
+                                                            </a>
+                                                        </li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" href="#" onclick="durumGuncelle(@siparis.SiparisID, 'İptal Edildi')">
+                                                                <i class="fas fa-times me-2"></i>İptal Edildi
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function durumGuncelle(siparisId, yeniDurum) {
+    if (confirm('Sipariş durumunu "' + yeniDurum + '" olarak güncellemek istediğinizden emin misiniz?')) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '@Url.Action("SiparisDurumuGuncelle")';
+        
+        var idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'id';
+        idInput.value = siparisId;
+        
+        var durumInput = document.createElement('input');
+        durumInput.type = 'hidden';
+        durumInput.name = 'yeniDurum';
+        durumInput.value = yeniDurum;
+        
+        form.appendChild(idInput);
+        form.appendChild(durumInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// DataTable özelliği ekle
+$(document).ready(function() {
+    $('#siparisTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
+        },
+        "pageLength": 25,
+        "order": [[5, "desc"]]
+    });
+});
+</script>
+
+<style>
+.table th {
+    background-color: #4e73df !important;
+    color: white !important;
+    border-color: #4e73df !important;
+}
+.img-thumbnail {
+    border: 1px solid #dee2e6;
+}
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+</style> 

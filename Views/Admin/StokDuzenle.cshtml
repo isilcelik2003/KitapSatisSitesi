@@ -1,0 +1,88 @@
+@model KitapSatisSitesi.Models.Kitap
+@{
+    ViewData["Title"] = "Stok Düzenle";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-boxes me-2"></i>Stok Düzenle: @Model.Ad
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Hata"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Hata"]
+                        </div>
+                    }
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                @if (!string.IsNullOrEmpty(Model.ResimUrl))
+                                {
+                                    <img src="@Model.ResimUrl" alt="@Model.Ad" class="img-fluid rounded" style="max-height: 200px;">
+                                }
+                                else
+                                {
+                                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="height: 200px;">
+                                        <i class="fas fa-book fa-3x"></i>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>@Model.Ad</h5>
+                            <p class="text-muted">@(Model.Yazar?.TamAd ?? "Bilinmiyor")</p>
+                            <p class="text-muted">@(Model.Kategori?.Ad ?? "Bilinmiyor")</p>
+                            <p class="text-success fw-bold">₺@Model.Fiyat.ToString("N2")</p>
+                            
+                            <div class="alert alert-info">
+                                <strong>Mevcut Stok:</strong> 
+                                @if (Model.StokAdedi > 10)
+                                {
+                                    <span class="badge bg-success fs-6">@Model.StokAdedi</span>
+                                }
+                                else if (Model.StokAdedi > 0)
+                                {
+                                    <span class="badge bg-warning fs-6">@Model.StokAdedi</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger fs-6">Tükendi</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="StokDuzenle" method="post">
+                        <input type="hidden" name="id" value="@Model.KitapID" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Yeni Stok Adedi</label>
+                            <input type="number" name="yeniStok" class="form-control form-control-lg" 
+                                   value="@Model.StokAdedi" min="0" required>
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Stok adedi 0 veya daha büyük olmalıdır.
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("KitapListesi")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Geri Dön
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-2"></i>Stok Güncelle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

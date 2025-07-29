@@ -1,0 +1,190 @@
+@model IEnumerable<KitapSatisSitesi.Models.Kitap>
+@{
+    ViewData["Title"] = "Kitap Listesi";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-list me-2"></i>Kitap Listesi
+                </h2>
+                <a href="@Url.Action("KitapEkle")" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Yeni Kitap Ekle
+                </a>
+            </div>
+
+            @if (TempData["Mesaj"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["Mesaj"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Hata"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Hata"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-book me-2"></i>Toplam @Model.Count() Kitap
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="kitapTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Resim</th>
+                                    <th>Kitap Adı</th>
+                                    <th>Yazar</th>
+                                    <th>Kategori</th>
+                                    <th>Fiyat</th>
+                                    <th>Stok</th>
+                                    <th>Yayın Yılı</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var kitap in Model)
+                                {
+                                    <tr>
+                                        <td>@kitap.KitapID</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(kitap.ResimUrl))
+                                            {
+                                                <img src="@kitap.ResimUrl" alt="@kitap.Ad" class="img-thumbnail" style="width: 50px; height: 70px; object-fit: cover;">
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 50px; height: 70px;">
+                                                    <i class="fas fa-book"></i>
+                                                </div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong>@kitap.Ad</strong>
+                                        </td>
+                                        <td>@(kitap.Yazar?.TamAd ?? "Bilinmiyor")</td>
+                                        <td>
+                                            <span class="badge bg-info">@(kitap.Kategori?.Ad ?? "Bilinmiyor")</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">₺@kitap.Fiyat.ToString("N2")</span>
+                                        </td>
+                                        <td>
+                                            @if (kitap.StokAdedi > 10)
+                                            {
+                                                <span class="badge bg-success">@kitap.StokAdedi</span>
+                                            }
+                                            else if (kitap.StokAdedi > 0)
+                                            {
+                                                <span class="badge bg-warning">@kitap.StokAdedi</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Tükendi</span>
+                                            }
+                                        </td>
+                                        <td>@kitap.YayinYili</td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="@Url.Action("KitapDuzenle", new { id = kitap.KitapID })" 
+                                                   class="btn btn-sm btn-outline-primary" 
+                                                   title="Düzenle">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="@Url.Action("StokDuzenle", new { id = kitap.KitapID })" 
+                                                   class="btn btn-sm btn-outline-warning" 
+                                                   title="Stok Düzenle">
+                                                    <i class="fas fa-boxes"></i>
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-danger" 
+                                                        title="Sil"
+                                                        onclick="kitapSil(@kitap.KitapID, '@kitap.Ad')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Onay Modalı -->
+<div class="modal fade" id="silModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>Kitap Silme Onayı
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong id="silinecekKitapAdi"></strong> adlı kitabı silmek istediğinizden emin misiniz?</p>
+                <p class="text-danger"><small>Bu işlem geri alınamaz!</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>İptal
+                </button>
+                <form id="silForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Sil
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function kitapSil(kitapId, kitapAdi) {
+    document.getElementById('silinecekKitapAdi').textContent = kitapAdi;
+    document.getElementById('silForm').action = '@Url.Action("KitapSil")/' + kitapId;
+    
+    var modal = new bootstrap.Modal(document.getElementById('silModal'));
+    modal.show();
+}
+
+// DataTable özelliği ekle
+$(document).ready(function() {
+    $('#kitapTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
+        },
+        "pageLength": 25,
+        "order": [[0, "desc"]]
+    });
+});
+</script>
+
+<style>
+.table th {
+    background-color: #4e73df !important;
+    color: white !important;
+    border-color: #4e73df !important;
+}
+.btn-group .btn {
+    margin-right: 2px;
+}
+.img-thumbnail {
+    border: 1px solid #dee2e6;
+}
+</style> 

@@ -1,0 +1,110 @@
+﻿@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12 text-center mb-4">
+            <h1 class="display-4 text-primary">Kitap Dünyasına Hoş Geldiniz</h1>
+            <p class="lead">En sevdiğiniz kitapları keşfedin ve satın alın</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center mb-4">Kategoriler</h2>
+            <div class="row">
+                @if (ViewBag.Kategoriler != null)
+                {
+                    @foreach (var kategori in ViewBag.Kategoriler)
+                    {
+                        <div class="col-md-3 mb-4">
+                            <div class="card h-100 shadow-sm text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-book fa-3x text-primary mb-3"></i>
+                                    <h5 class="card-title">@kategori.Ad</h5>
+                                    <p class="card-text text-muted">@kategori.Kitaplar.Count kitap</p>
+                                    <a href="@Url.Action("Kategori", "Kitap", new { kategori = kategori.Ad })" class="btn btn-outline-primary">
+                                        Kitapları Gör
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5 justify-content-center">
+        <div class="col-md-5 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-star fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">En Popüler</h5>
+                    <p class="card-text">En çok satan ve en çok okunan kitaplar</p>
+                    <a href="@Url.Action("Index", "Kitap")" class="btn btn-warning">Popüler Kitaplar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Tüm Kitaplar</h5>
+                    <p class="card-text">Kütüphanemizdeki tüm kitapları keşfedin</p>
+                    <a href="@Url.Action("Index", "Kitap")" class="btn btn-info">Tüm Kitaplar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h2 class="text-center mb-4">Öne Çıkan Kitaplar</h2>
+            <div class="row">
+                @if (ViewBag.OneCikanKitaplar != null)
+                {
+                    @foreach (var kitap in ViewBag.OneCikanKitaplar)
+                    {
+                        <div class="col-md-3 mb-4">
+                            <div class="card h-100" data-kitap-id="@kitap.KitapID" data-fiyat="@kitap.Fiyat" data-yazar-adi="@kitap.Yazar.TamAd" data-resim-url="@kitap.ResimUrl">
+                                <img src="@(string.IsNullOrEmpty(kitap.ResimUrl) ? "https://via.placeholder.com/200x300/6c757d/ffffff?text=Kitap" : 
+                                        (kitap.ResimUrl.StartsWith("http://") || kitap.ResimUrl.StartsWith("https://") ? kitap.ResimUrl : (kitap.ResimUrl.StartsWith("/") ? kitap.ResimUrl : "/" + kitap.ResimUrl)))" 
+                                     class="card-img-top" alt="@kitap.Ad">
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title">@kitap.Ad</h6>
+                                    <p class="card-text text-muted">@kitap.Yazar.TamAd</p>
+                                    <p class="card-text">
+                                        <span class="badge bg-secondary">@kitap.Kategori.Ad</span>
+                                        @if (!kitap.StoktaMi)
+                                        {
+                                            <span class="badge bg-danger">Stokta Yok</span>
+                                        }
+                                    </p>
+                                    <p class="card-text mt-auto">
+                                        <strong class="text-primary">₺@kitap.Fiyat.ToString("F2")</strong>
+                                    </p>
+                                    <div class="mt-auto">
+                                        <a href="@Url.Action("Detay", "Kitap", new { id = kitap.KitapID })" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                                            Detayları Gör
+                                        </a>
+                                        @if (kitap.StoktaMi)
+                                        {
+                                            <button class="btn btn-primary btn-sm w-100" onclick="sepeteEkle(@kitap.KitapID, '@kitap.Ad')">Sepete Ekle</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-secondary btn-sm w-100" disabled>Stokta Yok</button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,4 @@
+
+ALTER TABLE Kullanici
+DROP COLUMN Sifre;
+
