@@ -67,12 +67,16 @@ Modern ve kullanıcı dostu bir kitap satış platformu. ASP.NET Core MVC kullan
 ## 👤 Varsayılan Kullanıcılar
 
 ### Admin Kullanıcısı
-- **Email**: admin@kitapsatis.com
-- **Şifre**: admin
+- **Email**: admin@example.com
+- **Şifre**: 12345
 
 ### Test Kullanıcısı
-- **Email**: test@test.com
-- **Şifre**: test
+- **Email**: zeynep@example.com
+- **Şifre**: qwerty
+
+### Test Kullanıcısı 2 
+- **Email**: mehmet@example.com
+- **Şifre**: abcde
 
 ## 📊 Veritabanı Yapısı
 
