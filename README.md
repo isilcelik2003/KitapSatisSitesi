@@ -174,17 +174,7 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 
 ## 📞 İletişim
 
-- **Proje Sahibi**: İsil Çelik
-- **Email**: isilcelik2003@gmail.com
+- **Proje Sahibi**: Işıl Çelik
+- **Email**: isil.celik2003@gmail.com
 - **GitHub**: [github.com/isilcelik2003]
 
-## 🙏 Teşekkürler
-
-- ASP.NET Core ekibine
-- Bootstrap ekibine
-- Font Awesome ekibine
-- Tüm katkıda bulunanlara
-
----
-
-⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
